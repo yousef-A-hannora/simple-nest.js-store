@@ -16,9 +16,9 @@ import { productService } from './products.service';
 @Controller()
 export class ProductsController {
   /**
-   * Bad way to hndle servic, but i don't know Dependancy injection yet so i just gonna follow it
+   * good way to hndle servic,using  Dependancy injection
    */
-  private productServiceInstance: productService = new productService();
+  constructor(private readonly productServiceInstance: productService) {}
   //get all products
   @Get('/api/products')
   public getAllProducts() {

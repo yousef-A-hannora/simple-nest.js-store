@@ -1,4 +1,4 @@
-import { HttpException } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { UpdateProductDTO } from './dtos/update-product.dto';
 import { CreateProductDTO } from './dtos/create-product.dto';
 
@@ -7,7 +7,7 @@ type product = {
   name: string;
   price: number;
 };
-
+@Injectable()
 export class productService {
   private myHumpleDB: product[] = [
     { id: 1, name: 'book', price: 30 },
