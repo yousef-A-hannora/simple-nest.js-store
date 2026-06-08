@@ -8,6 +8,7 @@ import {
   HttpException,
   Patch,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateProductDTO } from './dtos/create-product.dto';
 import { UpdateProductDTO } from './dtos/update-product.dto';
@@ -35,9 +36,9 @@ export class ProductsController {
 
   //get a single product by id
   @Get('/api/products/:id')
-  public getproductByID(@Param('id') id: string) {
+  public getproductByID(@Param('id', ParseIntPipe) id: number) {
     const product = this.myHumpleDB.find((p) => {
-      return p.id === parseInt(id);
+      return p.id === id;
     });
     if (!product) {
       throw new HttpException('Product not found', 404);
@@ -63,15 +64,13 @@ export class ProductsController {
 @Param('id') id:   */
   public UpdateProduct(
     @Body() updateData: Partial<UpdateProductDTO>,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ) {
-    const index = this.myHumpleDB.findIndex((p) => p.id === parseInt(id));
-
-    console.log('index is ' + index);
+    const index = this.myHumpleDB.findIndex((p) => p.id === id);
     if (index === -1) throw new HttpException('Product not found', 404);
 
     this.myHumpleDB[index] = {
-      id: parseInt(id),
+      id,
       name: updateData.name ? updateData.name : this.myHumpleDB[index].name,
       price: updateData.price ? updateData.price : this.myHumpleDB[index].price,
     };
@@ -82,15 +81,15 @@ export class ProductsController {
   /**
    * UpdateProduct
 @Param('id') id:   */
-  public DeleteProduct(@Param('id') id: string) {
-    const index = this.myHumpleDB.findIndex((p) => p.id === parseInt(id));
+  public DeleteProduct(@Param('id', ParseIntPipe) id: number) {
+    const index = this.myHumpleDB.findIndex((p) => p.id === id);
     if (index === -1) {
-      if (this.deleteHistory.includes(parseInt(id))) {
+      if (this.deleteHistory.includes(id)) {
         throw new HttpException('this object has been deleted before', 400);
       } else throw new HttpException('object with this id not found', 404);
     }
     this.myHumpleDB.splice(index, 1);
-    this.deleteHistory.push(parseInt(id));
+    this.deleteHistory.push(id);
     return this.myHumpleDB;
   }
 }
