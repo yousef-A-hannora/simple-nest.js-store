@@ -12,17 +12,22 @@ import {
 import { CreateProductDTO } from './dtos/create-product.dto';
 import { UpdateProductDTO } from './dtos/update-product.dto';
 import { productService } from './products.service';
-
+import { reviewsService } from '../Reviews/reviews.service';
 @Controller()
 export class ProductsController {
   /**
    * good way to hndle servic,using  Dependancy injection
    */
-  constructor(private readonly productServiceInstance: productService) {}
+  constructor(
+    private readonly productServiceInstance: productService,
+    private readonly reviewsService: reviewsService,
+  ) {}
   //get all products
   @Get('/api/products')
   public getAllProducts() {
-    return this.productServiceInstance.getAll();
+    const products = this.productServiceInstance.getAll();
+    const reviews = this.reviewsService.getAll();
+    return { products, reviews };
   }
 
   //get a single product by id
