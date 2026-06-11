@@ -7,6 +7,7 @@ export class UsersController {
   // GET: ~/api/reviews
   @Get('/api/users')
   public getAllReviews() {
-    return this.userService.getAll();
+    const users = this.userService.getAll();
+    return users;
   }
 }

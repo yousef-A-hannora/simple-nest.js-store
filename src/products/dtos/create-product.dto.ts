@@ -11,7 +11,10 @@ export class CreateProductDTO {
   @IsString()
   @IsNotEmpty()
   @Length(3, 100)
-  name: string;
+  title: string;
+
+  @IsString()
+  description: string;
 
   @IsNumber()
   @IsPositive()

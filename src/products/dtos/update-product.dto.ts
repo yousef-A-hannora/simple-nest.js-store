@@ -13,7 +13,11 @@ export class UpdateProductDTO {
   @IsNotEmpty()
   @Length(3, 100)
   @IsOptional()
-  name?: string;
+  title?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
 
   @IsNumber()
   @IsPositive()
