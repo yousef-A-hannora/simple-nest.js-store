@@ -12,6 +12,7 @@ import {
 import { CreateProductDTO } from './dtos/create-product.dto';
 import { UpdateProductDTO } from './dtos/update-product.dto';
 import { productService } from './products.service';
+import { ConfigService } from '@nestjs/config';
 // import { reviewsService } from '../Reviews/reviews.service';
 @Controller()
 export class ProductsController {
@@ -21,6 +22,7 @@ export class ProductsController {
   constructor(
     private readonly productServiceInstance: productService,
     // private readonly reviewsService: reviewsService,
+    private readonly Conf: ConfigService,
   ) {}
   //get all products
   @Get('/api/products')
@@ -28,7 +30,10 @@ export class ProductsController {
     const products = this.productServiceInstance.getAll();
     // const reviews = this.reviewsService.getAll();
     // return { products,reviews };
-    return products;
+    return {
+      products,
+      test: `env: ${process.env.NODE_ENV}, username:${this.Conf.get('DB_USERNAME')}`,
+    };
   }
 
   //get a single product by id
