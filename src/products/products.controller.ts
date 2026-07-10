@@ -30,10 +30,7 @@ export class ProductsController {
     const products = this.productServiceInstance.getAll();
     // const reviews = this.reviewsService.getAll();
     // return { products,reviews };
-    return {
-      products,
-      test: `env: ${process.env.NODE_ENV}, username:${this.Conf.get('DB_USERNAME')}`,
-    };
+    return products;
   }
 
   //get a single product by id

@@ -2,10 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
+import { Review } from '../Reviews/reviews.entity';
+import { User } from '../Users/user.entity';
 @Entity({ name: 'products' })
 export class ProductEntity {
   @PrimaryGeneratedColumn()
@@ -25,4 +29,10 @@ export class ProductEntity {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Review, (review) => review.product)
+  review: Review[];
+
+  @ManyToOne(() => User, (user) => user.product)
+  user: User;
 }

@@ -19,4 +19,8 @@ export class CreateProductDTO {
   @IsNumber()
   @IsPositive()
   price: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  userId: number;
 }

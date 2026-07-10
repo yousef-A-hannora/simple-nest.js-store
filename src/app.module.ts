@@ -5,6 +5,8 @@ import { ReviewsModule } from './Reviews/reviews.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductEntity } from './products/product.entity';
 import { ConfigModule } from '@nestjs/config';
+import { Review } from './Reviews/reviews.entity';
+import { User } from './Users/user.entity';
 
 @Module({
   imports: [
@@ -22,8 +24,8 @@ import { ConfigModule } from '@nestjs/config';
       password: process.env.DB_PASSWORD,
       host: 'localhost',
       port: 5432,
-      synchronize: process.env.NODE_ENV === 'development',
-      entities: [ProductEntity],
+      synchronize: true,
+      entities: [ProductEntity, Review, User],
     }),
   ],
 })
