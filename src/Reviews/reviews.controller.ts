@@ -13,9 +13,7 @@ import { CreateReviewDTO } from './dtos/create-review.dto';
 import { UpdateReviewDto } from './dtos/update-review.dto';
 @Controller()
 export class ReviewsController {
-  constructor(private readonly reviewsService: reviewsService) {
-    console.log(process.env.NODE_ENV);
-  }
+  constructor(private readonly reviewsService: reviewsService) {}
   // GET: ~/api/reviews
   @Get('/api/reviews')
   public getAllReviews() {

@@ -1,6 +1,5 @@
 import {
   IsEmail,
-  IsEnum,
   IsOptional,
   IsString,
   Length,
@@ -8,7 +7,6 @@ import {
   IsNotEmpty,
   IsNumber,
 } from 'class-validator';
-import { roles } from '../user.entity'; // Adjust the import path
 
 export class CreateUserDto {
   @IsOptional()
@@ -28,8 +26,4 @@ export class CreateUserDto {
   @IsString()
   @Length(8, 100)
   password: string;
-
-  @IsOptional()
-  @IsEnum(roles)
-  userType?: roles;
 }

@@ -9,6 +9,7 @@ import {
 import { Review } from '../Reviews/reviews.entity';
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { ProductEntity } from '../products/product.entity';
+import { auth } from '../auth/auth.entity';
 
 export enum roles {
   ADMIN = 'admin',
@@ -27,13 +28,13 @@ export class User {
   @Column({ type: 'varchar', length: 20, nullable: true })
   name: string;
 
-  @Column()
+  @Column({ unique: true, nullable: false })
   email: string;
 
   @Column({ type: 'boolean', default: false })
   isDeleted: boolean;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({ type: 'enum', enum: roles, default: roles.CUSTOMER })
@@ -57,6 +58,10 @@ export class User {
   @OneToMany(() => Review, (review) => review.user)
   review: Review[];
 
-  @OneToMany(() => ProductEntity, (product) => product.user)
+  @OneToMany(() => ProductEntity, (product) => product.creator)
   product: ProductEntity[];
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  @OneToMany(() => auth, (auth) => auth.user)
+  auth: auth[];
 }

@@ -6,11 +6,11 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Post,
+  // Post,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './Users.service';
-import { CreateUserDto } from './DTOs/create-user-dto';
+// import { CreateUserDto } from './DTOs/create-user-dto';
 import { UpdateUserDTO } from './DTOs/update-user-dto';
 @Controller()
 export class UsersController {
@@ -26,14 +26,14 @@ export class UsersController {
   // GET: ~/api/users/:id
   @Get('/api/users/:id')
   public async getUserById(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.userService.getOneBy(id);
+    const user = await this.userService.getOneBy(id, false);
     return user;
   }
 
-  @Post('/api/users')
-  public async createUser(@Body(new ValidationPipe()) body: CreateUserDto) {
-    return await this.userService.create(body);
-  }
+  // @Post('/api/users')
+  // public async createUser(@Body(new ValidationPipe()) body: CreateUserDto) {
+  //   return await this.userService.create(body);
+  // }
 
   @Patch('/api/users/:id')
   public async updateUser(

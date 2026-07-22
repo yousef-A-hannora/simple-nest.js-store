@@ -34,5 +34,5 @@ export class ProductEntity {
   review: Review[];
 
   @ManyToOne(() => User, (user) => user.product)
-  user: User;
+  creator: User;
 }

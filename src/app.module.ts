@@ -7,12 +7,15 @@ import { ProductEntity } from './products/product.entity';
 import { ConfigModule } from '@nestjs/config';
 import { Review } from './Reviews/reviews.entity';
 import { User } from './Users/user.entity';
+import { AuthModule } from './auth/auth.module';
+import { auth } from './auth/auth.entity';
 
 @Module({
   imports: [
     UsersModule,
     productsModule,
     ReviewsModule,
+    AuthModule,
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
@@ -25,8 +28,10 @@ import { User } from './Users/user.entity';
       host: 'localhost',
       port: 5432,
       synchronize: true,
-      entities: [ProductEntity, Review, User],
+      entities: [ProductEntity, Review, User, auth],
     }),
   ],
+  providers: [],
+  controllers: [],
 })
 export class AppModule {}
