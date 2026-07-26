@@ -23,7 +23,13 @@ export class User {
   id: number;
 
   @Column({ nullable: true })
-  age: number;
+  birthDate: Date;
+
+  @Column({ nullable: true })
+  phone: string;
+
+  @Column({ nullable: true })
+  provider: string;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   name: string;
@@ -34,14 +40,20 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isDeleted: boolean;
 
-  @Column({ select: false })
+  @Column({ select: false, nullable: true })
   password: string;
+
+  @Column({ select: false, nullable: true })
+  oauthId: string;
 
   @Column({ type: 'enum', enum: roles, default: roles.CUSTOMER })
   userType: roles;
 
   @Column({ default: false })
   isAccountVerified: boolean;
+
+  @Column({ type: 'boolean', default: false })
+  profileCompleted: boolean;
 
   @CreateDateColumn({
     type: 'timestamp',

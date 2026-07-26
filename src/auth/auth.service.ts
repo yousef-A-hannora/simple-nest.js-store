@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -12,6 +14,7 @@ import { redisClient } from '../utils/redis';
 import { UsersService } from '../Users/Users.service';
 import { LoginDto } from './DTOs/login.dto';
 import { CreateUserDto } from '../Users/DTOs/create-user-dto';
+import { GoogleProfile } from '../Interfaces/AuthRequest';
 type OTPType = 'verify' | 'reset';
 
 @Injectable()
@@ -103,6 +106,13 @@ export class AuthService {
       throw new HttpException(
         'Invalid email or password',
         HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    if (!user.profileCompleted) {
+      throw new HttpException(
+        'Profile incomplete. Please complete your profile to login.',
+        HttpStatus.FORBIDDEN,
       );
     }
 
@@ -246,7 +256,11 @@ export class AuthService {
   //-----------------Helper Methods-----------------
 
   private generateAccessToken(user: User): string {
-    const payload = { Id: user.id, roles: user.userType };
+    const payload = {
+      Id: user.id,
+      roles: user.userType,
+      profileCompleted: user.profileCompleted,
+    };
 
     const secret =
       this.configService.get<string>('JWT_SECRET') || 'defaultSecret'; // Default secret if not set
@@ -288,5 +302,57 @@ export class AuthService {
     if (IsMatch && secretToken?.expiresAt > new Date() && !secretToken.revoked)
       return [true, secretToken];
     return [false, null];
+  }
+
+  public async handleGoogleLogin(profile: GoogleProfile): Promise<{
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+    profileCompleted: boolean;
+  }> {
+    let user = await this.userService.findByOAuthId(profile.oauthId);
+
+    if (!user) {
+      user = await this.userService.findByEmail(profile.email);
+      if (user) {
+        await this.userService.updateInternal(
+          { oauthId: profile.oauthId, provider: profile.provider },
+          user.id,
+        );
+      } else {
+        user = await this.userService.createOAuthUser({
+          name: profile.displayName,
+          email: profile.email,
+          oauthId: profile.oauthId,
+          provider: profile.provider,
+        });
+      }
+    }
+
+    const refreshToken = await this.generateRefreshToken(user);
+    const accessToken = this.generateAccessToken(user);
+
+    return {
+      user,
+      accessToken,
+      refreshToken,
+      profileCompleted: user.profileCompleted,
+    };
+  }
+
+  public async completeProfile(
+    userId: number,
+    birthDate: Date,
+    phone: string,
+  ): Promise<void> {
+    try {
+      const user = await this.userService.completeProfile(
+        userId,
+        birthDate,
+        phone,
+      );
+    } catch (err) {
+      throw new HttpException('Failed to complete profile, try again', 500);
+    }
   }
 }

@@ -35,7 +35,11 @@ export class UsersService {
             'isAccountVerified',
             'userType',
             'isDeleted',
-            'age',
+            'birthDate',
+            'phone',
+            'provider',
+            'oauthId',
+            'profileCompleted',
             'product',
             'review',
           ]
@@ -45,7 +49,11 @@ export class UsersService {
             'isAccountVerified',
             'userType',
             'isDeleted',
-            'age',
+            'birthDate',
+            'phone',
+            'provider',
+            'oauthId',
+            'profileCompleted',
             'product',
             'review',
           ],
@@ -64,6 +72,7 @@ export class UsersService {
     const user = this.userRepository.create({
       userType: roles.CUSTOMER,
       isAccountVerified: true,
+      profileCompleted: true,
       ...dto,
     });
     try {
@@ -121,6 +130,54 @@ export class UsersService {
     const hashedPassword = await hashPassword(data.password);
     data.password = hashedPassword;
     const user = this.userRepository.create(data);
+    return this.userRepository.save(user);
+  }
+
+  public async findByOAuthId(oauthId: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ oauthId });
+  }
+
+  public async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ email });
+  }
+
+  public async createOAuthUser(data: {
+    name: string;
+    email: string;
+    oauthId: string;
+    provider: string;
+  }): Promise<User> {
+    const user = this.userRepository.create({
+      name: data.name,
+      email: data.email,
+      oauthId: data.oauthId,
+      provider: data.provider,
+      isAccountVerified: true,
+      profileCompleted: false,
+      userType: roles.CUSTOMER,
+    });
+    try {
+      return await this.userRepository.save(user);
+    } catch (err: any) {
+      if (err.code && err.code === '23505') {
+        throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      }
+      throw err;
+    }
+  }
+
+  public async completeProfile(
+    id: number,
+    birthDate: Date,
+    phone: string,
+  ): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+    user.birthDate = birthDate;
+    user.phone = phone;
+    user.profileCompleted = true;
     return this.userRepository.save(user);
   }
 

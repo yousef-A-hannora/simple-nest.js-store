@@ -5,20 +5,25 @@ import {
   HttpCode,
   HttpException,
   HttpStatus,
-  //   Param,
-  //   ParseIntPipe,
+  Patch,
   Post,
   Req,
   Res,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { LoginDto } from './DTOs/login.dto';
+import { CompleteProfileDto } from './DTOs/complete-profile.dto';
 import type { Response, Request } from 'express';
 import { UsersService } from '../Users/Users.service';
 import { CreateUserDto } from '../Users/DTOs/create-user-dto';
-// import { User } from '../Users/user.entity';
+import { authGuardGoogle, authGuardJWT } from './guards/auth.guard';
+import type {
+  AuthenticatedRequest,
+  AuthenticatedRequestGoogle,
+} from '../Interfaces/AuthRequest';
 @Controller('api/auth')
 export class AuthController {
   constructor(
@@ -48,7 +53,7 @@ export class AuthController {
   async login(
     @Body(new ValidationPipe()) loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<string> {
+  ) {
     const [accessToken, refreshToken] = await this.authService.login(loginDto);
     response.cookie('refreshtoken', refreshToken, {
       httpOnly: true,
@@ -56,7 +61,7 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    return accessToken;
+    return { accessToken: accessToken };
   }
 
   @Post('signup')
@@ -67,6 +72,51 @@ export class AuthController {
     await this.authService.storeSignupSession(signupDto);
     await this.authService.generateOTPForUser(signupDto.email, 'verify');
     return { message: 'Acount created, waiting verification ' };
+  }
+
+  @Get('google')
+  @UseGuards(authGuardGoogle)
+  googleLogin() {}
+
+  @Get('google/callback')
+  @UseGuards(authGuardGoogle)
+  async googleCallback(
+    @Req() req: AuthenticatedRequestGoogle,
+    @Res() res: Response,
+  ) {
+    const result = await this.authService.handleGoogleLogin(req.user);
+
+    res.cookie('refreshtoken', result.refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get('NODE_ENV') === 'production',
+      sameSite: 'strict',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+
+    if (!result.profileCompleted) {
+      return res.redirect(`${frontendUrl}/complete-profile`);
+    }
+
+    return res.json({ accessToken: result.accessToken });
+  }
+
+  @Patch('complete-profile')
+  @UseGuards(authGuardJWT)
+  async completeProfile(
+    @Body(new ValidationPipe()) dto: CompleteProfileDto,
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ message: string }> {
+    await this.authService.completeProfile(
+      req.user.id,
+      new Date(dto.birthDate),
+      dto.phone,
+    );
+
+    return { message: 'Profile completed successfully' };
   }
   /**
    * Logout from the current device.
