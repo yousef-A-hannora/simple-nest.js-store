@@ -15,6 +15,7 @@ import { UsersService } from '../Users/Users.service';
 import { LoginDto } from './DTOs/login.dto';
 import { CreateUserDto } from '../Users/DTOs/create-user-dto';
 import { GoogleProfile } from '../Interfaces/AuthRequest';
+import { randomInt } from 'crypto';
 type OTPType = 'verify' | 'reset';
 
 @Injectable()
@@ -154,6 +155,14 @@ export class AuthService {
     }
   }
 
+  public async resetPassword(resetToken: string, newPassword: string) {
+    const email = await this.consumeResetToken(resetToken);
+    const user = await this.userService.getOneBy(email, false);
+    if (!user) {
+      throw new HttpException('User not excist', HttpStatus.NOT_FOUND);
+    }
+    await this.userService.updatePassword(user.id, newPassword);
+  }
   // -----------------------password reset flow
   public async issueResetToken(email: string): Promise<string> {
     const resetToken = randomBytes(32).toString('hex');
@@ -178,7 +187,7 @@ export class AuthService {
     email: string,
     type: OTPType,
   ): Promise<string> {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = randomInt(100000, 1000000).toString();
     console.log(otp);
     const otpKey = `${type}:user:${email}`;
     const otpAttemptKey = `${type}_attempt:user:${email}`;
@@ -224,7 +233,7 @@ export class AuthService {
     email: string,
     type: OTPType = 'verify',
   ): Promise<string> {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = randomInt(1000000, 10000000).toString();
     console.log(otp);
 
     const otpKey = `${type}:user:${email}`;
@@ -258,16 +267,16 @@ export class AuthService {
   private generateAccessToken(user: User): string {
     const payload = {
       Id: user.id,
-      roles: user.userType,
+      role: user.userType,
       profileCompleted: user.profileCompleted,
     };
 
-    const secret =
-      this.configService.get<string>('JWT_SECRET') || 'defaultSecret'; // Default secret if not set
+    const secret = this.configService.get<string>('JWT_SECRET'); // Default secret if not set
+    if (!secret) throw new Error('JWT secret messing');
     const expiresIn: number =
       Number(
         this.configService.get<string>('ACCESS_TOKEN_EXPIRATION_IN_MINUTES'),
-      ) || 15 * 60 * 1000; // Default to 15 minutes if not set
+      ) || 15 * 60; // Default to 15 minutes if not set
 
     const accessToken = JWT.sign(payload, secret, { expiresIn });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -346,12 +355,9 @@ export class AuthService {
     phone: string,
   ): Promise<void> {
     try {
-      const user = await this.userService.completeProfile(
-        userId,
-        birthDate,
-        phone,
-      );
+      await this.userService.completeProfile(userId, birthDate, phone);
     } catch (err) {
+      console.error(err);
       throw new HttpException('Failed to complete profile, try again', 500);
     }
   }

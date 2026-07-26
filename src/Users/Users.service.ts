@@ -22,7 +22,7 @@ export class UsersService {
   public async getOneBy(
     value: string | number,
     passwordIncluded: boolean,
-  ): Promise<User> {
+  ): Promise<User | null> {
     const where = typeof value === 'number' ? { id: value } : { email: value };
 
     const user = await this.userRepository.findOne({
@@ -60,7 +60,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      return null;
     }
 
     return user;

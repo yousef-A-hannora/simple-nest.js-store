@@ -3,16 +3,18 @@ import {
   IsOptional,
   IsString,
   Length,
-  Min,
   IsNotEmpty,
-  IsNumber,
+  IsDateString,
 } from 'class-validator';
 
 export class CreateUserDto {
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  age?: number;
+  @IsDateString()
+  birthDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
 
   @IsOptional()
   @IsString()

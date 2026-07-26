@@ -9,7 +9,6 @@ export class authGuardJWT extends AuthGuard('jwt') {
   ): boolean | Promise<boolean> | Observable<boolean> {
     return super.canActivate(context);
   }
-
 }
 
 export class authGuardGoogle extends AuthGuard('google') {}

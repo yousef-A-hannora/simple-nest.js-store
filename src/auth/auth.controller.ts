@@ -24,6 +24,10 @@ import type {
   AuthenticatedRequest,
   AuthenticatedRequestGoogle,
 } from '../Interfaces/AuthRequest';
+import { verifyOTP } from './DTOs/verifyOtp.dto';
+import { resendOTP } from './DTOs/resendOtp.dto';
+import { resetPassword } from './DTOs/resetPassword.dto';
+import { sendResetOTP } from './DTOs/sendResetOTP.dto';
 @Controller('api/auth')
 export class AuthController {
   constructor(
@@ -108,7 +112,6 @@ export class AuthController {
   async completeProfile(
     @Body(new ValidationPipe()) dto: CompleteProfileDto,
     @Req() req: AuthenticatedRequest,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     await this.authService.completeProfile(
       req.user.id,
@@ -147,7 +150,6 @@ export class AuthController {
 
   /**
    * Logout from all devices.
-   * (Normally this should use req.user.id instead of a route parameter.)
    */
   @Get('/logout-all')
   @HttpCode(HttpStatus.OK)
@@ -173,10 +175,8 @@ export class AuthController {
    * Send a password reset OTP.
    */
   @Post('/forget-pasword')
-  async sendResetOtp(
-    @Body('email') email: string,
-  ): Promise<{ message: string }> {
-    const otp = await this.authService.generateOTPForUser(email, 'reset');
+  async sendResetOtp(@Body() body: sendResetOTP): Promise<{ message: string }> {
+    const otp = await this.authService.generateOTPForUser(body.email, 'reset');
     console.log(otp);
     return { message: 'OTP sent to your email' };
   }
@@ -187,13 +187,9 @@ export class AuthController {
   @Post('verify-otp')
   async verifyOtp(
     @Body()
-    body: {
-      email: string;
-      otp: number;
-      type?: 'verify' | 'reset';
-    },
+    body: verifyOTP,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<boolean | string> {
+  ): Promise<{ result: string }> {
     const success = await this.authService.verifyOTP(
       body.email,
       body.otp,
@@ -223,7 +219,7 @@ export class AuthController {
           sameSite: 'strict',
           maxAge: 30 * 24 * 60 * 60 * 1000,
         });
-        return accessToken;
+        return { result: accessToken };
       } catch (err) {
         if (err instanceof HttpException) throw err;
         console.error(err);
@@ -232,9 +228,9 @@ export class AuthController {
     }
     if (success && body.type === 'reset') {
       const resetToken = await this.authService.issueResetToken(body.email);
-      return resetToken;
+      return { result: resetToken };
     }
-    return success;
+    return { result: String(success) };
   }
 
   /**
@@ -243,26 +239,16 @@ export class AuthController {
   @Post('resend-otp')
   async resendOtp(
     @Body()
-    body: {
-      email: string;
-      type?: 'verify' | 'reset';
-    },
-  ): Promise<{ otp: string }> {
-    const otp = await this.authService.regenerateOTP(
-      body.email,
-      body.type ?? 'verify',
-    );
+    body: resendOTP,
+  ): Promise<{ message: string }> {
+    await this.authService.regenerateOTP(body.email, body.type ?? 'verify');
 
-    return { otp };
+    return { message: 'OTP sent to your email' };
   }
 
   @Post('reset-password')
-  async resetPassword(
-    @Body() body: { resetToken: string; newPassword: string },
-  ) {
-    const email = await this.authService.consumeResetToken(body.resetToken); // throws if invalid/expired
-    const user = await this.userService.getOneBy(email, false);
-    await this.userService.updatePassword(user.id, body.newPassword);
+  async resetPassword(@Body() body: resetPassword) {
+    await this.authService.resetPassword(body.resetToken, body.newPassword);
     return { message: 'Password updated successfully' };
   }
 }

@@ -20,7 +20,7 @@ export class ReviewsController {
     return this.reviewsService.getAll();
   }
 
-  @Get('/api/reviews:id')
+  @Get('/api/reviews/:id')
   public getOne(@Param('id', ParseIntPipe) id: number) {
     return this.reviewsService.getOneBy(id);
   }
@@ -38,7 +38,7 @@ export class ReviewsController {
     return this.reviewsService.update(Body, id);
   }
 
-  @Delete('/api/reviews:id')
+  @Delete('/api/reviews/:id')
   public Delete(@Param('id', ParseIntPipe) id: number) {
     return this.reviewsService.delete(id);
   }
