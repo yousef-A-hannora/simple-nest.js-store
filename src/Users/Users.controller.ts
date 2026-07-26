@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
   Controller,
@@ -6,12 +7,17 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Req,
+  UseGuards,
   // Post,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './Users.service';
 // import { CreateUserDto } from './DTOs/create-user-dto';
 import { UpdateUserDTO } from './DTOs/update-user-dto';
+import { authGuardJWT } from '../auth/guards/auth.guard';
+import type { Request } from 'express';
+import type { AuthenticatedRequest } from '../Interfaces/AuthRequest';
 @Controller()
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
@@ -24,8 +30,10 @@ export class UsersController {
   }
 
   // GET: ~/api/users/:id
-  @Get('/api/users/:id')
-  public async getUserById(@Param('id', ParseIntPipe) id: number) {
+  @Get('/api/users/user')
+  @UseGuards(authGuardJWT)
+  public async getUserById(@Req() req: AuthenticatedRequest) {
+    const id: number = req.user.id;
     const user = await this.userService.getOneBy(id, false);
     return user;
   }

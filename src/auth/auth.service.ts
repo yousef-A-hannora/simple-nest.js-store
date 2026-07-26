@@ -191,9 +191,7 @@ export class AuthService {
   ): Promise<boolean> {
     const otpKey = `${type}:user:${email}`;
     const otpAttemptKey = `${type}_attempt:user:${email}`;
-    console.log(email, otp, type);
     const storedOTP = await redisClient.get(otpKey);
-    console.log(storedOTP);
     const attempts = Number((await redisClient.get(otpAttemptKey)) ?? 0);
     if (attempts >= 5) {
       throw new HttpException(
@@ -251,8 +249,7 @@ export class AuthService {
     const payload = { Id: user.id, roles: user.userType };
 
     const secret =
-      this.configService.get<string>('ACCESS_TOKEN_SECRET') || 'defaultSecret'; // Default secret if not set
-
+      this.configService.get<string>('JWT_SECRET') || 'defaultSecret'; // Default secret if not set
     const expiresIn: number =
       Number(
         this.configService.get<string>('ACCESS_TOKEN_EXPIRATION_IN_MINUTES'),
