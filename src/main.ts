@@ -6,7 +6,7 @@ import { connectRedis } from './utils/redis';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  connectRedis();
+  await connectRedis();
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
