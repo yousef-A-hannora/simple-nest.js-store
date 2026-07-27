@@ -8,11 +8,13 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateProductDTO } from './dtos/create-product.dto';
 import { UpdateProductDTO } from './dtos/update-product.dto';
 import { productService } from './products.service';
 import { ConfigService } from '@nestjs/config';
+import { ProductsCacheInterceptor } from '../utils/Interceptors/cashing.interceptor';
 // import { reviewsService } from '../Reviews/reviews.service';
 @Controller()
 export class ProductsController {
@@ -26,6 +28,7 @@ export class ProductsController {
   ) {}
   //get all products
   @Get('/api/products')
+  @UseInterceptors(ProductsCacheInterceptor)
   public getAllProducts() {
     const products = this.productServiceInstance.getAll();
     // const reviews = this.reviewsService.getAll();
