@@ -6,7 +6,7 @@ import { User } from './user.entity';
 import { DeepPartial, Repository } from 'typeorm';
 import { UpdateUserDTO } from './DTOs/update-user-dto';
 import { hashPassword } from '../utils/passwordHash';
-import { roles } from './user.entity';
+import { roles } from '../utils/enums';
 @Injectable()
 export class UsersService {
   constructor(

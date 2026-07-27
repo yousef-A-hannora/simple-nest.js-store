@@ -14,7 +14,7 @@ import { redisClient } from '../utils/redis';
 import { UsersService } from '../Users/Users.service';
 import { LoginDto } from './DTOs/login.dto';
 import { CreateUserDto } from '../Users/DTOs/create-user-dto';
-import { GoogleProfile } from '../Interfaces/AuthRequest';
+import { GoogleProfile } from '../utils/Interfaces/AuthRequest';
 import { randomInt } from 'crypto';
 type OTPType = 'verify' | 'reset';
 

@@ -10,12 +10,7 @@ import { Review } from '../Reviews/reviews.entity';
 import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { ProductEntity } from '../products/product.entity';
 import { auth } from '../auth/auth.entity';
-
-export enum roles {
-  ADMIN = 'admin',
-  CUSTOMER = 'user',
-  TRADER = 'trader',
-}
+import { roles } from '../utils/enums';
 
 @Entity({ name: 'Users' })
 export class User {

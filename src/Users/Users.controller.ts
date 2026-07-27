@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
@@ -17,12 +18,17 @@ import { UsersService } from './Users.service';
 import { UpdateUserDTO } from './DTOs/update-user-dto';
 import { authGuardJWT } from '../auth/guards/auth.guard';
 import type { Request } from 'express';
-import type { AuthenticatedRequest } from '../Interfaces/AuthRequest';
+import type { AuthenticatedRequest } from '../utils/Interfaces/AuthRequest';
+import { Roles } from '../auth/decorators/user-role.decorator';
+import { roles } from '../utils/enums';
+import { rolesGuard } from '../auth/guards/auth-roles.guard';
 @Controller()
 export class UsersController {
   constructor(private readonly userService: UsersService) {}
 
   // GET: ~/api/users
+  @Roles(roles.ADMIN)
+  @UseGuards(authGuardJWT, rolesGuard)
   @Get('/api/users')
   public async getAllUsers() {
     const users = await this.userService.getAll();

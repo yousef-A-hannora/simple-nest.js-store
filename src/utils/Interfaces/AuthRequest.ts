@@ -1,10 +1,11 @@
 import { Request } from 'express';
+import { roles } from '../enums';
 
 export interface AuthenticatedRequest extends Request {
   user: {
     id: number;
     email: string;
-    role: string;
+    role: roles;
     profileCompleted: boolean;
   };
 }

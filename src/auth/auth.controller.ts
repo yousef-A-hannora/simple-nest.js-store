@@ -23,7 +23,7 @@ import { authGuardGoogle, authGuardJWT } from './guards/auth.guard';
 import type {
   AuthenticatedRequest,
   AuthenticatedRequestGoogle,
-} from '../Interfaces/AuthRequest';
+} from '../utils/Interfaces/AuthRequest';
 import { verifyOTP } from './DTOs/verifyOtp.dto';
 import { resendOTP } from './DTOs/resendOtp.dto';
 import { resetPassword } from './DTOs/resetPassword.dto';
