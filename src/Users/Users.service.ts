@@ -19,45 +19,10 @@ export class UsersService {
     });
   }
 
-  public async getOneBy(
-    value: string | number,
-    passwordIncluded: boolean,
-  ): Promise<User | null> {
+  public async getOneBy(value: string | number): Promise<User | null> {
     const where = typeof value === 'number' ? { id: value } : { email: value };
 
-    const user = await this.userRepository.findOne({
-      where,
-      select: passwordIncluded
-        ? [
-            'id',
-            'email',
-            'password',
-            'isAccountVerified',
-            'userType',
-            'isDeleted',
-            'birthDate',
-            'phone',
-            'provider',
-            'oauthId',
-            'profileCompleted',
-            'product',
-            'review',
-          ]
-        : [
-            'id',
-            'email',
-            'isAccountVerified',
-            'userType',
-            'isDeleted',
-            'birthDate',
-            'phone',
-            'provider',
-            'oauthId',
-            'profileCompleted',
-            'product',
-            'review',
-          ],
-    });
+    const user = await this.userRepository.findOne({ where });
 
     if (!user) {
       return null;

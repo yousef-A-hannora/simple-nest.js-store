@@ -91,7 +91,7 @@ export class AuthService {
   public async login(
     loginDto: LoginDto,
   ): Promise<[accessToken: string, refreshToken: string]> {
-    const user = await this.userService.getOneBy(loginDto.email, true);
+    const user = await this.userService.getOneBy(loginDto.email);
     if (!user) {
       throw new HttpException(
         'Invalid email or password',
@@ -157,7 +157,7 @@ export class AuthService {
 
   public async resetPassword(resetToken: string, newPassword: string) {
     const email = await this.consumeResetToken(resetToken);
-    const user = await this.userService.getOneBy(email, false);
+    const user = await this.userService.getOneBy(email);
     if (!user) {
       throw new HttpException('User not excist', HttpStatus.NOT_FOUND);
     }

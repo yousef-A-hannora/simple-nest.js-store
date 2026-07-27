@@ -11,6 +11,7 @@ import { CURRENT_TIMESTAMP } from '../utils/constants';
 import { ProductEntity } from '../products/product.entity';
 import { auth } from '../auth/auth.entity';
 import { roles } from '../utils/enums';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'Users' })
 export class User {
@@ -35,7 +36,8 @@ export class User {
   @Column({ type: 'boolean', default: false })
   isDeleted: boolean;
 
-  @Column({ select: false, nullable: true })
+  @Column({ nullable: true })
+  @Exclude()
   password: string;
 
   @Column({ select: false, nullable: true })

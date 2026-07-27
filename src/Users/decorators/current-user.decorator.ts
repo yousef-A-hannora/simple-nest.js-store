@@ -11,7 +11,7 @@ export type JWTPayload = {
 
 export const currentUser = createParamDecorator(
   (data, context: ExecutionContext) => {
-    const request = context.switchToHttp().getRequest();
+    const request: JWTPayload = context.switchToHttp().getRequest();
     const user: JWTPayload = request['user'];
     return user;
   },
